@@ -1,4 +1,3 @@
-
 import random
 from constants import MIN_EXPERIENCE_POINTS, MAX_EXPERIENCE_POINTS
 

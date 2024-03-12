@@ -1,4 +1,3 @@
-
 import os
 import json
 import random
@@ -62,12 +61,12 @@ class Game:
 
         if player_answer == '1':
             energy_points = FIGHT_ENERGY_POINTS
-            self.player.update_energy(energy_points=energy_points)
+            self.player.decrease_energy(energy_points=energy_points)
             self.player_fight()
             is_run = False
         elif player_answer == '2':
             energy_points = RUN_ENERGY_POINTS
-            self.player.update_energy(energy_points=energy_points)
+            self.player.decrease_energy(energy_points=energy_points)
             is_run = True
         else:
             self.interface.print_results(player=self.player)
@@ -90,7 +89,7 @@ class Game:
         if random.random() < victory_chance:
             self.is_victory = True
             self.player.update_monsters_list(defeated_monster=self.current_monster)
-            self.player.update_experience(experience_points=self.current_monster.gained_exp)
+            self.player.increase_experience(experience_points=self.current_monster.gained_exp)
 
     def try_again(self):
         answer = self.interface.get_user_answer(options=self.interface.player_try_options)

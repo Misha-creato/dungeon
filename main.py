@@ -1,4 +1,3 @@
-
 import sys
 import json
 import check
@@ -15,7 +14,7 @@ from constants import (
 )
 
 
-def create_monsters_file():
+def get_monsters_file():
     response = requests.get(MONSTER_FILE_URL)
     data = response.json()
 
@@ -23,11 +22,11 @@ def create_monsters_file():
         json.dump(data, outfile, indent=2)
 
 
-def file_settings(interface: Interface):
+def fix_file_settings(interface: Interface):
 
     if not check.is_file_available(file=MONSTER_FILE):
         interface.print_monster_file_error(file=MONSTER_FILE)
-        create_monsters_file()
+        get_monsters_file()
 
     if not check.is_file_available(file=SAVE_FILE):
         interface.print_save_file_error(file=SAVE_FILE)
@@ -37,7 +36,7 @@ def file_settings(interface: Interface):
 def main():
     interface = Interface()
     interface.greeting()
-    file_settings(interface)
+    fix_file_settings(interface)
     answer = interface.get_user_answer(interface.player_menu_options)
     player = Player()
     if answer == '3':
