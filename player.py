@@ -1,26 +1,34 @@
 
+import json
+from dataclasses import dataclass, field
+from constants import SAVE_FILE
+from monster import Monster
 
+
+@dataclass
 class Player:
-    def __init__(self,
-                 level: int = 1,
-                 experience: int = 0,
-                 level_up_experience: int = 100,
-                 energy: int = 100,
-                 level_energy: int = 100,
-                 level_experience: int = 100,
-                 victory_chance_min: int = 50,
-                 victory_chance_max: int = 90,
-                 ):
-        self.level = level
-        self.experience = experience
-        self.level_up_experience = level_up_experience
-        self.energy = energy
-        self.level_energy = level_energy
-        self.level_experience = level_experience
-        self.victory_chance_min = victory_chance_min
-        self.victory_chance_max = victory_chance_max
-        self.killed_monsters = []
-        self.is_alive = True
+
+    level: int = 1
+    experience: int = 0
+    level_up_experience: int = 100
+    energy: int = 100
+    level_energy: int = 100
+    victory_chance_min: int = 50
+    victory_chance_max: int = 90
+    defeated_monsters: list = field(default_factory=list)
+    is_alive: bool = True
+
+    def load_player_data(self):
+        with open(SAVE_FILE, 'r') as file:
+            data = json.load(file)
+        self.level = data['level']
+        self.experience = data['experience']
+        self.level_up_experience = data['level_up_experience']
+        self.energy = data['energy']
+        self.level_energy = data['level_energy']
+        self.victory_chance_min = data['victory_chance_min']
+        self.victory_chance_max = data['victory_chance_max']
+        self.defeated_monsters = data['defeated_monsters']
 
     def update_energy(self, energy_points: int):
         self.energy += energy_points
@@ -28,25 +36,23 @@ class Player:
             self.is_alive = False
 
     def update_experience(self, experience_points: int):
-        self.level_up_experience -= experience_points
-        if self.level_up_experience > 0:
-            self.experience += experience_points
-        else:
-            self.update_stats()
+        self.experience += experience_points
+        exp_diff = self.level_up_experience - self.experience
+        if exp_diff <= 0:
+            self.update_stats(exp_diff)
 
-    def update_stats(self):
+    def update_stats(self, add_experience_points: int):
         self.level += 1
         self.level_energy += 10
         self.energy = self.level_energy
         self.experience = 0
-        self.experience += abs(self.level_up_experience)
-        self.level_experience = int(self.level_experience * 1.5)
-        self.level_up_experience = self.level_experience - abs(self.level_up_experience)
+        self.experience += abs(add_experience_points)
+        self.level_up_experience = int(self.level_up_experience * 1.5)
         self.victory_chance_min -= 1
         self.victory_chance_max -= 1
 
-    def __str__(self):
-        return (f'Level: {self.level} | Exp: {self.experience} |  '
-                f'Level up experience: {self.level_up_experience} | '
-                f'Energy: {self.energy} | Killed monsters: {self.killed_monsters}'
-                )
+    def update_monsters_list(self, defeated_monster: Monster):
+        if self.defeated_monsters is None:
+            self.defeated_monsters = []
+        self.defeated_monsters.append(defeated_monster)
+
