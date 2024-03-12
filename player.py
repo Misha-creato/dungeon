@@ -1,4 +1,3 @@
-
 import json
 from dataclasses import dataclass, field
 from constants import SAVE_FILE
@@ -30,12 +29,12 @@ class Player:
         self.victory_chance_max = data['victory_chance_max']
         self.defeated_monsters = data['defeated_monsters']
 
-    def update_energy(self, energy_points: int):
-        self.energy += energy_points
+    def decrease_energy(self, energy_points: int):
+        self.energy -= abs(energy_points)
         if self.energy <= 0:
             self.is_alive = False
 
-    def update_experience(self, experience_points: int):
+    def increase_experience(self, experience_points: int):
         self.experience += experience_points
         exp_diff = self.level_up_experience - self.experience
         if exp_diff <= 0:
