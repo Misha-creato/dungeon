@@ -1,21 +1,20 @@
+
 import random
+from constants import MIN_EXPERIENCE_POINTS, MAX_EXPERIENCE_POINTS
 
 
 class Monster:
-    def __init__(self, name: str, victory_chance: tuple):
+    def __init__(self, name: str, victory_chance_min: int, victory_chance_max: int):
         self.name = name
         self.gained_exp = self.get_gained_exp()
-        self.victory_chance = self.get_victory_chance(victory_chance=victory_chance)
+        self.victory_chance = self.get_victory_chance(
+            victory_chance_min=victory_chance_min,
+            victory_chance_max=victory_chance_max
+        )
 
     def get_gained_exp(self):
-        return random.randint(a=10, b=50)
+        return random.randint(a=MIN_EXPERIENCE_POINTS, b=MAX_EXPERIENCE_POINTS)
 
-    def get_victory_chance(self, victory_chance):
-        a, b = victory_chance
-        return random.randint(a=a, b=b)
+    def get_victory_chance(self, victory_chance_min: int, victory_chance_max: int):
+        return random.randint(a=victory_chance_min, b=victory_chance_max)
 
-    def __str__(self):
-        return (f'Name: {self.name} | '
-                f'Gained exp: {self.gained_exp} | '
-                f'Victory chance: {self.victory_chance}'
-                )
