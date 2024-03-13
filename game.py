@@ -19,7 +19,7 @@ class Game:
 
     all_monsters: list = []
     current_monster: Monster = None
-    is_victory = None
+    retry: bool = None
 
     def __init__(self, player: Player, interface: Interface):
         self.player = player
@@ -27,11 +27,12 @@ class Game:
 
     def start_game(self):
         self.set_all_monsters()
+        self.player.level_up = False
         while self.player.is_alive:
-            self.is_victory = True
+            self.retry = False
             self.get_monster()
             self.interface.print_player_move(player=self.player, monster=self.current_monster)
-            answer = self.interface.get_user_answer(self.interface.player_move_options)
+            answer = self.interface.get_user_answer(options=self.interface.player_move_options)
             self.player_move(player_answer=answer)
             self.save_progress()
         self.interface.print_end_game(player=self.player)
@@ -60,34 +61,35 @@ class Game:
     def player_move(self, player_answer: str):
 
         if player_answer == '1':
-            energy_points = FIGHT_ENERGY_POINTS
-            self.player.decrease_energy(energy_points=energy_points)
+            self.player.decrease_energy(energy_points=FIGHT_ENERGY_POINTS)
             self.player_fight()
             is_run = False
         elif player_answer == '2':
-            energy_points = RUN_ENERGY_POINTS
-            self.player.decrease_energy(energy_points=energy_points)
+            self.player.decrease_energy(energy_points=RUN_ENERGY_POINTS)
             is_run = True
         else:
             self.interface.print_results(player=self.player)
             sys.exit(0)
 
         self.interface.player_move_result(
-            is_victory=self.is_victory,
-            energy_points=energy_points,
+            retry=self.retry,
             is_run=is_run,
             monster=self.current_monster
         )
 
-        if not self.is_victory:
+        if self.player.level_up:
+            self.interface.print_level_up()
+            self.player.level_up = False
+
+        if self.retry and self.player.is_alive:
             self.try_again()
 
     def player_fight(self):
         victory_chance = self.current_monster.victory_chance / 100
-        self.is_victory = False
+        self.retry = True
 
         if random.random() < victory_chance:
-            self.is_victory = True
+            self.retry = False
             self.player.update_monsters_list(defeated_monster=self.current_monster)
             self.player.increase_experience(experience_points=self.current_monster.gained_exp)
 
