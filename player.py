@@ -16,22 +16,23 @@ class Player:
     victory_chance_max: int = 90
     defeated_monsters: list = field(default_factory=list)
     is_alive: bool = True
+    level_up: bool = False
 
     def load_player_data(self):
         with open(SAVE_FILE, 'r') as file:
             data = json.load(file)
-        self.level = data['level']
-        self.experience = data['experience']
-        self.level_up_experience = data['level_up_experience']
-        self.energy = data['energy']
-        self.level_energy = data['level_energy']
-        self.victory_chance_min = data['victory_chance_min']
-        self.victory_chance_max = data['victory_chance_max']
-        self.defeated_monsters = data['defeated_monsters']
+        data_fields = set(data.keys())
+        all_fields = set(self.__dict__.keys())
+        if data_fields == all_fields:
+            for field in all_fields:
+                setattr(self, field, data[field])
+            return True
+        return False
 
     def decrease_energy(self, energy_points: int):
-        self.energy -= abs(energy_points)
+        self.energy -= energy_points
         if self.energy <= 0:
+            self.energy = 0
             self.is_alive = False
 
     def increase_experience(self, experience_points: int):
@@ -49,9 +50,8 @@ class Player:
         self.level_up_experience = int(self.level_up_experience * 1.5)
         self.victory_chance_min -= 1
         self.victory_chance_max -= 1
+        self.level_up = True
 
     def update_monsters_list(self, defeated_monster: Monster):
-        if self.defeated_monsters is None:
-            self.defeated_monsters = []
         self.defeated_monsters.append(defeated_monster)
 
