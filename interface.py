@@ -2,33 +2,41 @@ import time
 
 from player import Player
 from monster import Monster
+from constants import (
+    RUN_ENERGY_POINTS,
+    FIGHT_ENERGY_POINTS,
+)
 from prettytable import PrettyTable
 
 
 class Interface:
 
-    player_menu_options = {'1': 'Start new game',
-                           '2': 'Load save',
-                           '3': 'Exit game',
-                           }
-    player_move_options = {'1': 'Fight monster',
-                           '2': 'Run',
-                           '3': 'Exit game',
-                           }
-    player_try_options = {'1': 'Fight monster again',
-                          '2': 'Continue game',
-                          '3': 'Exit game',
-                          }
+    player_menu_options = {
+        '1': 'Start new game',
+        '2': 'Load save',
+        '3': 'Exit game',
+    }
+    player_move_options = {
+        '1': 'Fight monster',
+        '2': 'Run',
+        '3': 'Exit game',
+    }
+    player_try_options = {
+        '1': 'Fight monster again',
+        '2': 'Continue game',
+        '3': 'Exit game',
+    }
 
     def greeting(self):
         print('Hello! Welcome to Dungeon game!')
         print('Checking files...')
         time.sleep(1)
 
-    def print_results(self, player: Player):
+    def print_results(self, player: Player = None):
         print('Game will be closed.')
-        print('Your results:')
-        self.print_player(player=player)
+        if player:
+            print('Your results:')
+            self.print_player(player=player)
 
     def print_end_game(self, player: Player):
         print('Oops, your energy ran out. That was a great game!')
@@ -74,17 +82,15 @@ class Interface:
         table.add_row([monster.name, monster.gained_exp, monster.victory_chance])
         print(table)
 
-    def player_move_result(self, energy_points: int, is_victory: bool, is_run: bool, monster: Monster = None):
-        energy_points = abs(energy_points)
-
+    def player_move_result(self, retry: bool, is_run: bool, monster: Monster = None):
         if is_run:
-            text = f"You choose to run away. You loose {energy_points} energy points"
+            text = f"You choose to run away.\nYou loose {RUN_ENERGY_POINTS} energy points"
         else:
-            text = (f"You couldn't defeat monster, but you can try again!!!\n"
-                    f"You loose {energy_points} energy points")
-            if is_victory:
-                text = (f"Congrats!!! You win!!!\n"
-                        f"You get {monster.gained_exp} exp points and loose {energy_points} energy points")
+            text = (f"Congrats!!! You win!!!\n"
+                    f"You get {monster.gained_exp} exp points and loose {FIGHT_ENERGY_POINTS} energy points")
+            if retry:
+                text = (f"You couldn't defeat monster\n"
+                        f"You loose {FIGHT_ENERGY_POINTS} energy points")
 
         time.sleep(1)
         print(text)
@@ -97,3 +103,9 @@ class Interface:
     def print_monster_file_error(self, file: str):
         print(f"File {file} damaged or doesn't exist")
         print('Please wait, monsters file is been prepared')
+
+    def print_level_up(self):
+        print('-----------------------------------')
+        print('Your level is up!')
+        print('Energy points completely restored')
+        print('-----------------------------------')
